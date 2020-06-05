@@ -1,0 +1,47 @@
+#!/bin/bash
+
+PROJECT_PATH=$(git rev-parse --show-toplevel)
+
+function requires() {
+    echo "This project requires ${1}, please install as appropriate for your system"
+    exit 1
+}
+
+function canexecute() {
+    EPATH=$(type -path "$1")
+    if [ -n "$EPATH" ] && [ -x "$EPATH" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+## pre-commit
+if ! canexecute "pre-commit"; then
+    if canexecute brew; then
+        if brew install pre-commit; then
+            echo "Installed pre-commit via brew"
+        else
+            echo "Attempted to install pre-commit via brew, but failed"
+            exit 1
+        fi
+    elif canexecute python; then
+        echo "Attempting to install a local pre-commit with python"
+        if curl https://pre-commit.com/install-local.py | python -; then
+            echo "Installed local pre-commit via python"
+        else
+            echo "Attempted to install pre-commit via python, but failed"
+            exit 1
+        fi
+    else
+        requires 'pre-commit'
+    fi
+fi
+
+# install hooks
+if canexecute "pre-commit"; then
+    cd "$PROJECT_PATH" || exit 1
+    pre-commit install || exit 1
+    echo
+    echo "You might want to try 'pre-commit run --all-files' now"
+fi
