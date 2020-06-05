@@ -2,6 +2,20 @@
 
 PROJECT_PATH=$(git rev-parse --show-toplevel)
 
+# from https://gist.github.com/nicferrier/2277987
+clone_or_update() {
+    REPOSRC=$1
+    LOCALREPO=$2
+    LOCALREPO_VC_DIR=$LOCALREPO/.git
+
+    if [ ! -d "$LOCALREPO_VC_DIR" ]; then
+        git clone "$REPOSRC" "$LOCALREPO"
+    else
+        cd "$LOCALREPO" || exit 1
+        git pull "$REPOSRC"
+    fi
+}
+
 function requires() {
     echo "This project requires ${1}, please install as appropriate for your system"
     exit 1
@@ -15,6 +29,12 @@ function canexecute() {
         return 1
     fi
 }
+
+DEPS_PATH="${PROJECT_PATH}/libs"
+mkdir -p "$DEPS_PATH"
+## nukkitx leveldb
+clone_or_update "https://github.com/NukkitX/leveldb.git" "$DEPS_PATH/leveldb"
+(cd "$DEPS_PATH/leveldb" && mvn package)
 
 ## pre-commit
 if ! canexecute "pre-commit"; then

@@ -10,3 +10,4 @@ testworlds
 .classpath
 .project
 .settings/org.eclipse.buildship.core.prefs
+libs/leveldb

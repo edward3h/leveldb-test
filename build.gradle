@@ -29,11 +29,11 @@ dependencies {
     // Use TestNG framework, also requires calling test.useTestNG() below
     testImplementation 'org.testng:testng:7.0.0'
 
-    implementation files('../leveldb/leveldb-api/target/leveldb-api-0.11.1-SNAPSHOT.jar')
-    implementation files('../leveldb/leveldb/target/leveldb-0.11.1-SNAPSHOT.jar')
+    implementation files('libs/leveldb/leveldb-api/target/leveldb-api-0.11.1-SNAPSHOT.jar')
+    implementation files('libs/leveldb/leveldb/target/leveldb-0.11.1-SNAPSHOT.jar')
+    // TODO implementation 'com.github.NukkitX:leveldb:master-SNAPSHOT'
 
     implementation 'com.github.edward3h:args4jboilerplate:v1.0'
-    //implementation 'com.github.edward3h:NBT:little-endian-support-SNAPSHOT'
     implementation 'com.nukkitx:nbt:1.6.0'
 }
 
