@@ -5,15 +5,11 @@ package org.ethelred.leveldb;
 
 import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Multisets;
-import com.nukkitx.nbt.NbtUtils;
-import com.nukkitx.nbt.stream.NBTInputStream;
 import com.nukkitx.nbt.tag.Tag;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.ethelred.args4jboilerplate.Args4jBoilerplate;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -36,27 +32,26 @@ public class App extends Args4jBoilerplate {
     options.createIfMissing(true);
     DB ldb = factory.open(db, options);
     try {
-      Multiset<String> blockNames = HashMultiset.create();
+      Map<ChunkKey, ChunkData> chunks = new HashMap<>();
+      Map<String, Tag<?>> general = new HashMap<>();
       for (var e : ldb) {
         Key k = new Key(e.getKey());
-        // if (k.isSpecial())
-        // {
-        //     System.out.println(k);
-        //     Tag<?> root = _readTag(e.getValue());
-        //     System.out.println(root);
-
-        //     System.out.println();
-        // }
-        if (k.getRecordType() == RecordType.SubChunkPrefix) {
-          SubChunkData value = SubChunkData.read(e.getValue());
-          value.forEach(block -> blockNames.add(block.getName()));
+        ChunkKey chunkKey = k.getChunkKey();
+        if (k.isSpecial()) {
+          general.put(k.toString(), Common.readTag(e.getValue()));
+        } else if (chunkKey != null) {
+          ChunkData chunkData = chunks.computeIfAbsent(
+            k.getChunkKey(),
+            x -> new ChunkData()
+          );
+          k.getRecordType().readData(k, e.getValue(), chunkData);
         }
       }
-      Multisets
-        .copyHighestCountFirst(blockNames)
-        .forEachEntry(
-          (name, count) -> System.out.printf("%12d => %s%n", count, name)
-        );
+      // Multisets
+      //   .copyHighestCountFirst(blockNames)
+      //   .forEachEntry(
+      //     (name, count) -> System.out.printf("%12d => %s%n", count, name)
+      //   );
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
@@ -66,15 +61,5 @@ public class App extends Args4jBoilerplate {
     }
 
     return true;
-  }
-
-  private Tag<?> _readTag(byte[] value) throws IOException {
-    try (
-      NBTInputStream in = NbtUtils.createReaderLE(
-        new ByteArrayInputStream(value)
-      )
-    ) {
-      return in.readTag();
-    }
   }
 }

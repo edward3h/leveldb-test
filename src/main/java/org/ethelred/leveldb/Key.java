@@ -3,15 +3,17 @@ package org.ethelred.leveldb;
 import com.google.common.io.LittleEndianDataInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 public class Key {
-  private int x;
-  private int z;
+  private Integer x;
+  private Integer z;
 
   @SuppressWarnings("unused")
   private int dimension;
 
-  private RecordType recordType;
+  private RecordType recordType = RecordType.Unknown;
   private byte subchunkIndex;
   private String special;
 
@@ -47,9 +49,10 @@ public class Key {
   }
 
   public boolean isSpecial() {
-    return recordType == RecordType.Unknown;
+    return recordType == RecordType.Unknown || x == null || z == null;
   }
 
+  @Nonnull
   public RecordType getRecordType() {
     return recordType;
   }
@@ -64,5 +67,13 @@ public class Key {
 
   public byte getSubchunkIndex() {
     return subchunkIndex;
+  }
+
+  @CheckForNull
+  public ChunkKey getChunkKey() {
+    if (x == null || z == null) {
+      return null;
+    }
+    return new ChunkKey(x, z);
   }
 }
