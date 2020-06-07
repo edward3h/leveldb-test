@@ -19,6 +19,9 @@ public class App extends Args4jBoilerplate {
   @Option(name = "--db", required = true)
   File db;
 
+  @Option(name = "--special", usage = "output special string keys and values")
+  boolean dumpSpecial = false;
+
   public App(String[] args) {
     super.parseArgs(args);
   }
@@ -52,6 +55,9 @@ public class App extends Args4jBoilerplate {
       //   .forEachEntry(
       //     (name, count) -> System.out.printf("%12d => %s%n", count, name)
       //   );
+      if (dumpSpecial) {
+        general.forEach((k, v) -> System.out.printf("%s => %s%n", k, v));
+      }
     } catch (Exception e) {
       e.printStackTrace();
     } finally {

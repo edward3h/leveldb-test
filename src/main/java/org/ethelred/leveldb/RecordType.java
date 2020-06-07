@@ -4,6 +4,9 @@ import com.nukkitx.nbt.stream.LittleEndianDataInputStream;
 import com.nukkitx.nbt.tag.Tag;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,19 +52,57 @@ public enum RecordType {
 
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
-      Tag<?> tag = Common.readTag(value);
+      List<Tag<?>> tag = Common.readTagList(value);
       into.setBlockEntity(tag);
     }
   },
-  Entity(50),
-  PendingTicks(51),
+  Entity(50) {
+
+    @Override
+    void readData(Key k, byte[] value, ChunkData into) throws IOException {
+      List<Tag<?>> tag = Common.readTagList(value);
+      into.setEntity(tag);
+    }
+  },
+  PendingTicks(51) {
+
+    @Override
+    void readData(Key k, byte[] value, ChunkData into) throws IOException {
+      List<Tag<?>> tag = Common.readTagList(value);
+      into.setPendingTicks(tag);
+    }
+  },
   BlockExtraData(52),
-  BiomeState(53),
-  FinalizedState(54),
+  BiomeState(53) {
+
+    @Override
+    void readData(Key k, byte[] value, ChunkData into) throws IOException {
+      // this is a guess based on what the data looked like
+      Map<Byte, Byte> biomeStates = new HashMap<>();
+      int length = value[0];
+      for (int i = 1; i < length * 2 + 1; i += 2) {
+        biomeStates.put(value[i], value[i + 1]);
+      }
+      into.setBiomeStates(biomeStates);
+    }
+  },
+  FinalizedState(54) {
+
+    @Override
+    void readData(Key k, byte[] value, ChunkData into) throws IOException {
+      into.setFinalizedState(Common.readInt(value));
+    }
+  },
   HardCodedSpawnAreas(57),
   RandomTicks(58),
   Upcoming(59),
-  Version(118);
+  Version(118) {
+
+    @Override
+    void readData(Key k, byte[] value, ChunkData into) throws IOException {
+      into.setVersion(value[0]);
+    }
+  };
 
   private final byte tagValue;
 
