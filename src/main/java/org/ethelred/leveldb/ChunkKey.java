@@ -33,4 +33,12 @@ public class ChunkKey {
   public String toString() {
     return "ChunkKey [" + x + "," + z + "]";
   }
+
+  public int getX() {
+    return x;
+  }
+
+  public int getZ() {
+    return z;
+  }
 }

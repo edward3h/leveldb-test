@@ -38,6 +38,11 @@ if [ ! -e "$DEPS_PATH/leveldb/leveldb-api/target/leveldb-api-0.11.1-SNAPSHOT.jar
     (cd "$DEPS_PATH/leveldb" && mvn package)
 fi
 
+RESOURCE_PATH="${PROJECT_PATH}/src/main/resources"
+mkdir -p "$RESOURCE_PATH"
+## nukkitx data
+clone_or_update "https://github.com/NukkitX/Data.git" "$RESOURCE_PATH/data"
+
 ## pre-commit
 if ! canexecute "pre-commit"; then
     if canexecute brew; then

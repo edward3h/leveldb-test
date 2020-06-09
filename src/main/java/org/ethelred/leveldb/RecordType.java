@@ -61,7 +61,7 @@ public enum RecordType {
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       List<Tag<?>> tag = Common.readTagList(value);
-      into.setEntity(tag);
+      into.setEntities(tag);
     }
   },
   PendingTicks(51) {
