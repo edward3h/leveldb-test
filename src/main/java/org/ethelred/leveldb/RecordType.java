@@ -90,7 +90,7 @@ public enum RecordType {
 
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
-      into.setFinalizedState(Common.readInt(value));
+      into.setFinalizedState(Common.readIntLE(value));
     }
   },
   HardCodedSpawnAreas(57),

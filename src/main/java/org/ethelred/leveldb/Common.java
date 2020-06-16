@@ -46,7 +46,7 @@ public class Common {
     return result;
   }
 
-  public static int readInt(byte[] value) {
+  public static int readIntLE(byte[] value) {
     return value[0] & (value[1] << 8) & (value[2] << 16) & (value[3] << 24);
   }
 
