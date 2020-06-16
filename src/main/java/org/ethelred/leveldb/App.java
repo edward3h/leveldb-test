@@ -5,6 +5,7 @@ package org.ethelred.leveldb;
 
 import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 
+import com.nukkitx.nbt.tag.CompoundTag;
 import com.nukkitx.nbt.tag.Tag;
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +80,9 @@ public class App extends Args4jBoilerplate {
       //     (name, count) -> System.out.printf("%12d => %s%n", count, name)
       //   );
       if (dumpSpecial) {
-        general.forEach((k, v) -> System.out.printf("%s => %s%n", k, v));
+        general.forEach(
+          (k, v) -> System.out.printf("%s => %s%n", k, Nbt2Yaml.toYamlString(v))
+        );
       }
       if (dumpBiomeIds) {
         _dumpBiomeIds(chunks);
@@ -130,7 +133,11 @@ public class App extends Args4jBoilerplate {
 
   private void _dumpBlockEntities(Map<ChunkKey, ChunkData> chunks) {
     Common.dumpThingByCount(
-      chunks.values().stream().flatMap(chunk -> chunk.getBlockEntity().stream())
+      chunks
+        .values()
+        .stream()
+        .flatMap(chunk -> chunk.getBlockEntity().stream()),
+      Nbt2Yaml::toYamlString
     );
   }
 

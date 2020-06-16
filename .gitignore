@@ -11,3 +11,4 @@ testworlds
 .project
 .settings/org.eclipse.buildship.core.prefs
 libs/leveldb
+src/main/resources/data

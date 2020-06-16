@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,14 +51,22 @@ public class Common {
     return value[0] & (value[1] << 8) & (value[2] << 16) & (value[3] << 24);
   }
 
-  public static void dumpThingByCount(Stream<?> things) {
-    Multiset<?> thingsWithCounts = things.collect(
+  public static <T> void dumpThingByCount(Stream<T> things) {
+    dumpThingByCount(things, String::valueOf);
+  }
+
+  public static <T> void dumpThingByCount(
+    Stream<T> things,
+    Function<T, String> toString
+  ) {
+    Multiset<T> thingsWithCounts = things.collect(
       Collectors.toCollection(HashMultiset::create)
     );
     Multisets
       .copyHighestCountFirst(thingsWithCounts)
       .forEachEntry(
-        (thing, count) -> System.out.printf("%12d => %s%n", count, thing)
+        (thing, count) ->
+          System.out.printf("%12d => %s%n", count, toString.apply(thing))
       );
   }
 }
