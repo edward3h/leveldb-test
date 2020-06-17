@@ -4,7 +4,6 @@ import com.nukkitx.nbt.stream.LittleEndianDataInputStream;
 import com.nukkitx.nbt.tag.Tag;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

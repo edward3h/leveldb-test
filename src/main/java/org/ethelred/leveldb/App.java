@@ -5,7 +5,6 @@ package org.ethelred.leveldb;
 
 import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 
-import com.nukkitx.nbt.tag.CompoundTag;
 import com.nukkitx.nbt.tag.Tag;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +35,12 @@ public class App extends Args4jBoilerplate {
     usage = "dump block entities (trying to figure out what they mean)"
   )
   boolean dumpBlockEntities = false;
+
+  @Option(
+    name = "--entities",
+    usage = "dump entities (trying to figure out what they mean)"
+  )
+  boolean dumpEntities = false;
 
   @Option(
     name = "--elevations",
@@ -90,6 +95,9 @@ public class App extends Args4jBoilerplate {
       if (dumpBlockEntities) {
         _dumpBlockEntities(chunks);
       }
+      if (dumpEntities) {
+        _dumpEntities(chunks);
+      }
       if (dumpElevations) {
         _dumpElevations(chunks);
       }
@@ -137,6 +145,13 @@ public class App extends Args4jBoilerplate {
         .values()
         .stream()
         .flatMap(chunk -> chunk.getBlockEntity().stream()),
+      Nbt2Yaml::toYamlString
+    );
+  }
+
+  private void _dumpEntities(Map<ChunkKey, ChunkData> chunks) {
+    Common.dumpThingByCount(
+      chunks.values().stream().flatMap(chunk -> chunk.getEntities().stream()),
       Nbt2Yaml::toYamlString
     );
   }
