@@ -32,7 +32,9 @@ public class DumpTagFile {
 
   static List<ThrowingFunction<InputStream, NBTInputStream>> accessors = List.of(
     NbtUtils::createReaderLE,
-    NbtUtils::createNetworkReader
+    NbtUtils::createNetworkReader,
+    NbtUtils::createGZIPReader,
+    NbtUtils::createReader
   );
 
   static boolean tryRead(

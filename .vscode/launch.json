@@ -23,7 +23,8 @@
       "request": "launch",
       "mainClass": "org.ethelred.leveldb.DumpTagFile",
       "projectName": "leveldb-test",
-      "args": "src/main/resources/data/biome_definitions.dat"
+      //"args": "src/main/resources/data/biome_definitions.dat"
+      "args": "plains_small_house_1.nbt"
     },
     {
       "type": "java",

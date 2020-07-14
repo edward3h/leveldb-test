@@ -1,0 +1,5 @@
+#!/bin/bash
+
+PROJECT_PATH=$(git rev-parse --show-toplevel)
+
+"$PROJECT_PATH"/gradlew run --args="$*"

@@ -93,7 +93,7 @@ public enum RecordType {
   },
   HardCodedSpawnAreas(57),
   RandomTicks(58),
-  Upcoming(59),
+  Checksums(59),
   Version(118) {
 
     @Override
@@ -113,7 +113,7 @@ public enum RecordType {
   }
 
   void readData(Key k, byte[] value, ChunkData into) throws IOException {
-    System.out.println("Don't know how to read " + name() + " :-( " + k);
+    System.err.println("Don't know how to read " + name() + " :-( " + k);
   }
 
   public static RecordType fromByte(byte value) {

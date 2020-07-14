@@ -9,6 +9,7 @@ import com.amihaiemil.eoyaml.YamlSequenceBuilder;
 import com.nukkitx.nbt.NbtList;
 import com.nukkitx.nbt.NbtMap;
 import com.nukkitx.nbt.NbtType;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,8 @@ public class Nbt2Yaml {
         return toYamlNode((Float) t);
       case STRING:
         return toYamlNode((String) t);
+      case BYTE_ARRAY:
+        return toYamlNode((byte[]) t);
       default:
         throw new IllegalArgumentException("Unsupported tag type " + t);
     }
@@ -101,6 +104,10 @@ public class Nbt2Yaml {
 
   private static YamlNode toYamlNode(String t) {
     return _scalar(null, t.toString());
+  }
+
+  private static YamlNode toYamlNode(byte[] t) {
+    return _scalar(null, "TODO byte[] of length " + t.length);
   }
 
   private static YamlNode _scalar(String typeOverride, String value) {
