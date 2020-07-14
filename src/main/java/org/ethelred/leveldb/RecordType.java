@@ -1,7 +1,6 @@
 package org.ethelred.leveldb;
 
-import com.nukkitx.nbt.stream.LittleEndianDataInputStream;
-import com.nukkitx.nbt.tag.Tag;
+import com.nukkitx.nbt.util.stream.LittleEndianDataInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public enum RecordType {
 
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
-      List<Tag<?>> tag = Common.readTagList(value);
+      List<Object> tag = Common.readTagList(value);
       into.setBlockEntity(tag);
     }
   },
@@ -59,7 +58,7 @@ public enum RecordType {
 
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
-      List<Tag<?>> tag = Common.readTagList(value);
+      List<Object> tag = Common.readTagList(value);
       into.setEntities(tag);
     }
   },
@@ -67,7 +66,7 @@ public enum RecordType {
 
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
-      List<Tag<?>> tag = Common.readTagList(value);
+      List<Object> tag = Common.readTagList(value);
       into.setPendingTicks(tag);
     }
   },

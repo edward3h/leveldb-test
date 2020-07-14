@@ -6,22 +6,16 @@ import com.amihaiemil.eoyaml.YamlMappingBuilder;
 import com.amihaiemil.eoyaml.YamlNode;
 import com.amihaiemil.eoyaml.YamlSequence;
 import com.amihaiemil.eoyaml.YamlSequenceBuilder;
-import com.nukkitx.nbt.tag.ByteTag;
-import com.nukkitx.nbt.tag.CompoundTag;
-import com.nukkitx.nbt.tag.FloatTag;
-import com.nukkitx.nbt.tag.IntTag;
-import com.nukkitx.nbt.tag.ListTag;
-import com.nukkitx.nbt.tag.LongTag;
-import com.nukkitx.nbt.tag.ShortTag;
-import com.nukkitx.nbt.tag.StringTag;
-import com.nukkitx.nbt.tag.Tag;
+import com.nukkitx.nbt.NbtList;
+import com.nukkitx.nbt.NbtMap;
+import com.nukkitx.nbt.NbtType;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Nbt2Yaml {
 
-  public static String toYamlString(Tag<?> v) {
+  public static String toYamlString(Object v) {
     if (v == null) {
       return "";
     }
@@ -30,25 +24,25 @@ public class Nbt2Yaml {
     return node.toString();
   }
 
-  private static YamlNode toYamlNode(Tag<?> t) {
+  private static YamlNode toYamlNode(Object t) {
     // shitty dispatch mechanism
-    switch (t.getClass().getSimpleName()) {
-      case "CompoundTag":
-        return toYamlNode((CompoundTag) t);
-      case "ByteTag":
-        return toYamlNode((ByteTag) t);
-      case "ListTag":
-        return toYamlNode((ListTag<?>) t);
-      case "LongTag":
-        return toYamlNode((LongTag) t);
-      case "IntTag":
-        return toYamlNode((IntTag) t);
-      case "ShortTag":
-        return toYamlNode((ShortTag) t);
-      case "FloatTag":
-        return toYamlNode((FloatTag) t);
-      case "StringTag":
-        return toYamlNode((StringTag) t);
+    switch (NbtType.byClass(t.getClass()).getEnum()) {
+      case COMPOUND:
+        return toYamlNode((NbtMap) t);
+      case BYTE:
+        return toYamlNode((Byte) t);
+      case LIST:
+        return toYamlNode((NbtList<?>) t);
+      case LONG:
+        return toYamlNode((Long) t);
+      case INT:
+        return toYamlNode((Integer) t);
+      case SHORT:
+        return toYamlNode((Short) t);
+      case FLOAT:
+        return toYamlNode((Float) t);
+      case STRING:
+        return toYamlNode((String) t);
       default:
         throw new IllegalArgumentException("Unsupported tag type " + t);
     }
@@ -63,51 +57,50 @@ public class Nbt2Yaml {
     .thenComparing(s -> Character.isUpperCase(s.charAt(0)))
     .thenComparing(Comparator.naturalOrder());
 
-  private static YamlMapping toYamlNode(CompoundTag t) {
+  private static YamlMapping toYamlNode(NbtMap t) {
     YamlMappingBuilder builder = Yaml.createYamlMappingBuilder();
     List<String> sortedKeys = t
-      .getValue()
       .keySet()
       .stream()
       .sorted(keyOrdering)
       .collect(Collectors.toList());
     for (var k : sortedKeys) {
-      var v = t.getValue().get(k);
+      var v = t.get(k);
       builder = builder.add(k, toYamlNode(v));
     }
     return builder.build();
   }
 
-  private static YamlSequence toYamlNode(ListTag<?> t) {
+  private static YamlSequence toYamlNode(NbtList<?> t) {
     YamlSequenceBuilder builder = Yaml.createYamlSequenceBuilder();
-    for (var v : t.getValue()) {
+    for (var v : t) {
       builder = builder.add(toYamlNode(v));
     }
     return builder.build();
   }
 
-  private static YamlNode toYamlNode(ByteTag t) {
-    return _scalar("byte!", t.getValue().toString());
+  private static YamlNode toYamlNode(Byte t) {
+    return _scalar("byte!", t.toString());
   }
 
-  private static YamlNode toYamlNode(LongTag t) {
-    return _scalar("long!", t.getValue().toString());
+  private static YamlNode toYamlNode(Long t) {
+    return _scalar("long!", t.toString());
   }
 
-  private static YamlNode toYamlNode(ShortTag t) {
-    return _scalar("short!", t.getValue().toString());
+  private static YamlNode toYamlNode(Short t) {
+    return _scalar("short!", t.toString());
   }
 
-  private static YamlNode toYamlNode(IntTag t) {
-    return _scalar(null, t.getValue().toString());
+  private static YamlNode toYamlNode(Integer t) {
+    return _scalar(null, t.toString());
   }
 
-  private static YamlNode toYamlNode(FloatTag t) {
-    return _scalar(null, t.getValue().toString());
+  private static YamlNode toYamlNode(Float t) {
+    return _scalar(null, t.toString());
   }
 
-  private static YamlNode toYamlNode(StringTag t) {
-    return _scalar(null, t.getValue().toString());
+  private static YamlNode toYamlNode(String t) {
+    return _scalar(null, t.toString());
   }
 
   private static YamlNode _scalar(String typeOverride, String value) {

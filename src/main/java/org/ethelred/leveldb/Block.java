@@ -1,28 +1,27 @@
 package org.ethelred.leveldb;
 
-import com.nukkitx.nbt.tag.CompoundTag;
-import com.nukkitx.nbt.tag.Tag;
+import com.nukkitx.nbt.NbtMap;
 import java.util.Map;
 
 public class Block {
-  private final CompoundTag tag;
+  private final NbtMap tag;
 
-  public Block(CompoundTag tag) {
+  public Block(NbtMap tag) {
     this.tag = tag;
   }
 
   public String getName() {
     String baseName = tag.getString("name");
-    Map<String, Tag<?>> states = tag.getCompound("states").getValue();
-    for (Map.Entry<String, Tag<?>> e : states.entrySet()) {
+    Map<String, Object> states = tag.getCompound("states");
+    for (Map.Entry<String, Object> e : states.entrySet()) {
       if (e.getKey().endsWith("_type")) {
-        return baseName + ":" + e.getValue().getValue();
+        return baseName + ":" + e.getValue();
       }
     }
     return baseName;
   }
 
   public String toString() {
-    return String.valueOf(tag);
+    return Nbt2Yaml.toYamlString(tag);
   }
 }

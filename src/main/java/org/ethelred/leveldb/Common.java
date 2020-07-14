@@ -3,9 +3,8 @@ package org.ethelred.leveldb;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
+import com.nukkitx.nbt.NBTInputStream;
 import com.nukkitx.nbt.NbtUtils;
-import com.nukkitx.nbt.stream.NBTInputStream;
-import com.nukkitx.nbt.tag.Tag;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ public class Common {
 
   private Common() {} // no instantiation
 
-  public static Tag<?> readTag(byte[] value) throws IOException {
+  public static Object readTag(byte[] value) throws IOException {
     try (
       NBTInputStream in = NbtUtils.createReaderLE(
         new ByteArrayInputStream(value)
@@ -31,8 +30,8 @@ public class Common {
     }
   }
 
-  public static List<Tag<?>> readTagList(byte[] value) throws IOException {
-    List<Tag<?>> result = new ArrayList<>();
+  public static List<Object> readTagList(byte[] value) throws IOException {
+    List<Object> result = new ArrayList<>();
     try (
       NBTInputStream in = NbtUtils.createReaderLE(
         new ByteArrayInputStream(value)

@@ -5,7 +5,6 @@ package org.ethelred.leveldb;
 
 import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 
-import com.nukkitx.nbt.tag.Tag;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,6 +28,9 @@ public class App extends Args4jBoilerplate {
     usage = "dump biome IDs (trying to figure out what they mean)"
   )
   boolean dumpBiomeIds = false;
+
+  @Option(name = "--blockNames", usage = "summary of block types")
+  boolean dumpBlockNames = false;
 
   @Option(
     name = "--blockEntities",
@@ -65,7 +67,7 @@ public class App extends Args4jBoilerplate {
     DB ldb = factory.open(db, options);
     try {
       Map<ChunkKey, ChunkData> chunks = new HashMap<>();
-      Map<String, Tag<?>> general = new HashMap<>();
+      Map<String, Object> general = new HashMap<>();
       for (var e : ldb) {
         Key k = new Key(e.getKey());
         ChunkKey chunkKey = k.getChunkKey();
@@ -79,11 +81,7 @@ public class App extends Args4jBoilerplate {
           k.getRecordType().readData(k, e.getValue(), chunkData);
         }
       }
-      // Multisets
-      //   .copyHighestCountFirst(blockNames)
-      //   .forEachEntry(
-      //     (name, count) -> System.out.printf("%12d => %s%n", count, name)
-      //   );
+
       if (dumpSpecial) {
         general.forEach(
           (k, v) -> System.out.printf("%s => %s%n", k, Nbt2Yaml.toYamlString(v))
@@ -91,6 +89,9 @@ public class App extends Args4jBoilerplate {
       }
       if (dumpBiomeIds) {
         _dumpBiomeIds(chunks);
+      }
+      if (dumpBlockNames) {
+        _dumpBlockNames(chunks);
       }
       if (dumpBlockEntities) {
         _dumpBlockEntities(chunks);
@@ -137,6 +138,15 @@ public class App extends Args4jBoilerplate {
       }
       System.out.println();
     }
+  }
+
+  private void _dumpBlockNames(Map<ChunkKey, ChunkData> chunks) {
+    Common.dumpThingByCount(
+      chunks
+        .values()
+        .stream()
+        .flatMap(chunk -> chunk.getBlocks().map(Block::toString))
+    );
   }
 
   private void _dumpBlockEntities(Map<ChunkKey, ChunkData> chunks) {

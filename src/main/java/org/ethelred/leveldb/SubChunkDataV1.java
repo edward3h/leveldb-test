@@ -1,6 +1,6 @@
 package org.ethelred.leveldb;
 
-import com.nukkitx.nbt.stream.LittleEndianDataInputStream;
+import com.nukkitx.nbt.util.stream.LittleEndianDataInputStream;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;

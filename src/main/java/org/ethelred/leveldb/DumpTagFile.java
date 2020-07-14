@@ -1,7 +1,7 @@
 package org.ethelred.leveldb;
 
+import com.nukkitx.nbt.NBTInputStream;
 import com.nukkitx.nbt.NbtUtils;
-import com.nukkitx.nbt.stream.NBTInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;

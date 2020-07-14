@@ -1,8 +1,8 @@
 package org.ethelred.leveldb;
 
-import com.nukkitx.nbt.stream.LittleEndianDataInputStream;
-import com.nukkitx.nbt.stream.NBTInputStream;
-import com.nukkitx.nbt.tag.CompoundTag;
+import com.nukkitx.nbt.NBTInputStream;
+import com.nukkitx.nbt.NbtMap;
+import com.nukkitx.nbt.util.stream.LittleEndianDataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,10 +29,10 @@ public class BlockStorage implements Iterable<Block> {
     }
 
     int paletteSize = in.readInt();
-    CompoundTag[] palette = new CompoundTag[paletteSize];
+    NbtMap[] palette = new NbtMap[paletteSize];
     try (NBTInputStream nbtIn = new NBTInputStream(in)) {
       for (int i = 0; i < palette.length; i++) {
-        palette[i] = (CompoundTag) nbtIn.readTag();
+        palette[i] = (NbtMap) nbtIn.readTag();
       }
     }
     int bitMask = (2 << (bitsPerBlock - 1)) - 1;

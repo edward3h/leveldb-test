@@ -1,18 +1,20 @@
 package org.ethelred.leveldb;
 
-import com.nukkitx.nbt.tag.Tag;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ChunkData {
   private final SubChunkData[] subChunkData = new SubChunkData[8];
   private int[] biomes;
   private int[] elevations;
-  private List<Tag<?>> blockEntity = List.of();
-  private List<Tag<?>> pendingTicks = List.of();
+  private List<Object> blockEntity = List.of();
+  private List<Object> pendingTicks = List.of();
   private byte version;
   private int finalizedState;
-  private List<Tag<?>> entities = List.of();
+  private List<Object> entities = List.of();
   private Map<Byte, Byte> biomeStates = Map.of();
 
   public void setSubChunkData(int subChunkIndex, SubChunkData data) {
@@ -27,11 +29,11 @@ public class ChunkData {
     this.biomes = biomes;
   }
 
-  public void setBlockEntity(List<Tag<?>> tag) {
+  public void setBlockEntity(List<Object> tag) {
     this.blockEntity = tag;
   }
 
-  public void setPendingTicks(List<Tag<?>> tag) {
+  public void setPendingTicks(List<Object> tag) {
     this.pendingTicks = tag;
   }
 
@@ -63,11 +65,11 @@ public class ChunkData {
     return elevations;
   }
 
-  public List<Tag<?>> getBlockEntity() {
+  public List<Object> getBlockEntity() {
     return blockEntity;
   }
 
-  public List<Tag<?>> getPendingTicks() {
+  public List<Object> getPendingTicks() {
     return pendingTicks;
   }
 
@@ -79,11 +81,18 @@ public class ChunkData {
     return finalizedState;
   }
 
-  public List<Tag<?>> getEntities() {
+  public List<Object> getEntities() {
     return entities;
   }
 
-  public void setEntities(List<Tag<?>> entities) {
+  public void setEntities(List<Object> entities) {
     this.entities = entities;
+  }
+
+  public Stream<Block> getBlocks() {
+    return Stream
+      .of(subChunkData)
+      .filter(Objects::nonNull)
+      .flatMap(s -> StreamSupport.stream(s.spliterator(), false));
   }
 }
