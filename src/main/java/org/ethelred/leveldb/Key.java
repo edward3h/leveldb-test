@@ -52,6 +52,10 @@ public class Key {
     return recordType == RecordType.Unknown || x == null || z == null;
   }
 
+  public String getSpecialKey() {
+    return special;
+  }
+
   @Nonnull
   public RecordType getRecordType() {
     return recordType;

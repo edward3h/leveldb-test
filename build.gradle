@@ -34,9 +34,31 @@ dependencies {
     // TODO implementation 'com.github.NukkitX:leveldb:master-SNAPSHOT'
 
     implementation 'com.github.edward3h:args4jboilerplate:v1.0'
+    implementation 'com.github.edward3h:ethelred_util:v0.1'
     implementation 'com.nukkitx:nbt:2.0.0'
 
-    implementation 'com.amihaiemil.web:eo-yaml:4.3.5'
+    // https://mvnrepository.com/artifact/com.amihaiemil.web/eo-yaml
+    implementation group: 'com.amihaiemil.web', name: 'eo-yaml', version: '5.1.4'
+
+
+    annotationProcessor 'org.immutables:value:2.8.2'
+    implementation 'org.immutables:value:2.8.2'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.1'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
+
+    // https://github.com/FasterXML/jackson-datatypes-collections
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version: '2.9.5'
+
+    //implementation 'com.github.CloudburstMC:jackson-dataformat-nbt:master-SNAPSHOT'
+    implementation 'com.github.edward3h:jackson-dataformat-nbt:untyped_support-SNAPSHOT'
+
+    // https://mvnrepository.com/artifact/org.javatuples/javatuples
+    implementation group: 'org.javatuples', name: 'javatuples', version: '1.2'
+
+
 }
 
 application {
@@ -49,7 +71,14 @@ test {
     useTestNG()
 }
 
+// this is a workaround to get vscode to see generated source
+sourceSets.main.java.srcDirs += 'build/generated/sources/annotationProcessor/java/main'
+
 task bootstrapDependencies(type:Exec) {
     commandLine "script/bootstrap"
 }
 compileJava.dependsOn bootstrapDependencies
+
+compileJava {
+    options.compilerArgs.add("-Aimmutables.gradle.incremental")
+}

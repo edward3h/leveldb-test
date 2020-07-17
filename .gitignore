@@ -14,3 +14,6 @@ libs/leveldb
 src/main/resources/data
 brv
 EX_our_house
+ourhouse_BE
+ourhouse_special
+ourhouse_structure

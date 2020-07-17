@@ -12,8 +12,10 @@ import java.util.IntSummaryStatistics;
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.ethelred.args4jboilerplate.Args4jBoilerplate;
+import org.ethelred.mc.StructureConverter;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
+import org.javatuples.KeyValue;
 import org.kohsuke.args4j.Option;
 
 public class App extends Args4jBoilerplate {
@@ -53,6 +55,13 @@ public class App extends Args4jBoilerplate {
   @Option(name = "--grid", usage = "something")
   boolean dumpGrid = false;
 
+  @Option(
+    name = "--structure",
+    aliases = { "--structures" },
+    usage = "Dump structures"
+  )
+  boolean dumpStructures = false;
+
   public App(String[] args) {
     super.parseArgs(args);
   }
@@ -68,11 +77,13 @@ public class App extends Args4jBoilerplate {
     try {
       Map<ChunkKey, ChunkData> chunks = new HashMap<>();
       Map<String, Object> general = new HashMap<>();
+      Map<String, byte[]> generalRaw = new HashMap<>();
       for (var e : ldb) {
         Key k = new Key(e.getKey());
         ChunkKey chunkKey = k.getChunkKey();
         if (k.isSpecial()) {
-          general.put(k.toString(), Common.readTag(e.getValue()));
+          general.put(k.getSpecialKey(), Common.readTag(e.getValue()));
+          generalRaw.put(k.getSpecialKey(), e.getValue());
         } else if (chunkKey != null) {
           ChunkData chunkData = chunks.computeIfAbsent(
             k.getChunkKey(),
@@ -105,6 +116,9 @@ public class App extends Args4jBoilerplate {
       if (dumpGrid) {
         _dumpGrid(chunks);
       }
+      if (dumpStructures) {
+        _dumpStructures(generalRaw);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
@@ -114,6 +128,16 @@ public class App extends Args4jBoilerplate {
     }
 
     return true;
+  }
+
+  private void _dumpStructures(Map<String, byte[]> raw) {
+    StructureConverter.convert(
+      raw
+        .entrySet()
+        .stream()
+        .filter(e -> e.getKey().startsWith("structure"))
+        .map(e -> KeyValue.with(e.getKey(), e.getValue()))
+    );
   }
 
   private void _dumpGrid(Map<ChunkKey, ChunkData> chunks) {
