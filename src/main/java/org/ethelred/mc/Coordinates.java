@@ -18,4 +18,16 @@ public class Coordinates {
     this.y = value[1];
     this.z = value[2];
   }
+
+  public int getX() {
+    return x;
+  }
+
+  public int getY() {
+    return y;
+  }
+
+  public int getZ() {
+    return z;
+  }
 }

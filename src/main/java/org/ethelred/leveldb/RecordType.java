@@ -113,7 +113,7 @@ public enum RecordType {
   }
 
   void readData(Key k, byte[] value, ChunkData into) throws IOException {
-    System.err.println("Don't know how to read " + name() + " :-( " + k);
+    //System.err.println("Don't know how to read " + name() + " :-( " + k);
   }
 
   public static RecordType fromByte(byte value) {

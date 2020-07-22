@@ -1,10 +1,12 @@
 package org.ethelred.mc.pack;
 
-import java.util.Set;
+import java.util.Map;
 import org.immutables.value.Value;
 
 @Value.Immutable
 public interface MCPack {
-  Set<MCPackFile> files();
+  Map<String, MCPackFile> files();
   String name();
+  MCPackType type();
+  String description();
 }

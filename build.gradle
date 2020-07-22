@@ -34,7 +34,7 @@ dependencies {
     // TODO implementation 'com.github.NukkitX:leveldb:master-SNAPSHOT'
 
     implementation 'com.github.edward3h:args4jboilerplate:v1.0'
-    implementation 'com.github.edward3h:ethelred_util:v0.1'
+    implementation 'com.github.edward3h:ethelred_util:v0.2'
     implementation 'com.nukkitx:nbt:2.0.0'
 
     // https://mvnrepository.com/artifact/com.amihaiemil.web/eo-yaml

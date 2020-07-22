@@ -14,4 +14,8 @@ import org.immutables.value.Value;
 public interface BlockPalette {
   @JsonProperty("block_palette")
   List<BlockState> blockStates();
+
+  default BlockState get(int index) {
+    return blockStates().get(index);
+  }
 }

@@ -130,7 +130,7 @@ public class App extends Args4jBoilerplate {
     return true;
   }
 
-  private void _dumpStructures(Map<String, byte[]> raw) {
+  private void _dumpStructures(Map<String, byte[]> raw) throws IOException {
     StructureConverter.convert(
       raw
         .entrySet()
