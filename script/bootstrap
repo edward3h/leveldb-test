@@ -41,7 +41,7 @@ fi
 RESOURCE_PATH="${PROJECT_PATH}/src/main/resources"
 mkdir -p "$RESOURCE_PATH"
 ## nukkitx data
-clone_or_update "https://github.com/NukkitX/Data.git" "$RESOURCE_PATH/data"
+clone_or_update "https://github.com/edward3h/Data.git" "$RESOURCE_PATH/data"
 
 ## pre-commit
 if ! canexecute "pre-commit"; then

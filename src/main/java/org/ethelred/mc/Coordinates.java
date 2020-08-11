@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class Coordinates {
-  private int x;
-  private int y;
-  private int z;
+  int x;
+  int y;
+  int z;
 
   @JsonCreator
-  public Coordinates(int[] value) {
+  public Coordinates(int... value) {
     if (value.length != 3) {
       throw new IllegalArgumentException();
     }

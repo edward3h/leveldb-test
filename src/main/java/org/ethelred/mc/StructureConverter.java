@@ -2,15 +2,17 @@ package org.ethelred.mc;
 
 import static org.ethelred.util.function.CheckedFunction.unchecked;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.nukkitx.jackson.dataformat.nbt.NBTFactory.Feature;
 import com.nukkitx.jackson.dataformat.nbt.NBTMapper;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import org.ethelred.mc.pack.ImmutableMCFunction;
@@ -26,6 +28,28 @@ public class StructureConverter {
   private static final ObjectMapper mapper = new NBTMapper()
     .enable(Feature.LITTLE_ENDIAN)
     .registerModule(new GuavaModule());
+
+  enum Rotation {
+    R0("", c -> c),
+    R90("_rot90", c -> new Coordinates(-c.z, c.y, c.x)),
+    R180("_rot180", c -> new Coordinates(-c.x, c.y, -c.z)),
+    R270("_rot270", c -> new Coordinates(c.z, c.y, -c.x));
+
+    String suffix;
+    private Function<Coordinates, Coordinates> rotationFunction;
+
+    private Rotation(
+      String suffix,
+      Function<Coordinates, Coordinates> rotationFunction
+    ) {
+      this.suffix = suffix;
+      this.rotationFunction = rotationFunction;
+    }
+
+    public Coordinates rotate(Coordinates coordinates) {
+      return rotationFunction.apply(coordinates);
+    }
+  }
 
   public static void convert(Stream<KeyValue<String, byte[]>> rawStructures)
     throws IOException {
@@ -63,7 +87,9 @@ public class StructureConverter {
         )
       )
       .peek(kv -> descriptionBuilder.append(kv.getKey()))
-      .map(kv -> convertStructure(lbdm, kv.getKey(), kv.getValue()))
+      .flatMap(
+        kv -> convertStructure(lbdm, kv.getKey(), kv.getValue()).stream()
+      )
       .forEach(f -> packBuilder.putFiles(f.getRelativePath(), f));
 
     packBuilder.description(descriptionBuilder.toString());
@@ -71,14 +97,18 @@ public class StructureConverter {
     MCPackWriter.writePack(pack);
   }
 
-  private static MCFunction convertStructure(
+  private static Collection<MCFunction> convertStructure(
     LegacyBlockDataMap lbdm,
     String name,
     Structure structure
   ) {
-    ImmutableMCFunction.Builder functionBuilder = ImmutableMCFunction
-      .builder()
-      .name(_normalize(name));
+    Map<Rotation, ImmutableMCFunction.Builder> builders = new HashMap<>();
+    for (Rotation rotation : Rotation.values()) {
+      ImmutableMCFunction.Builder functionBuilder = ImmutableMCFunction
+        .builder()
+        .name(_normalize(name) + rotation.suffix);
+      builders.put(rotation, functionBuilder);
+    }
     Coordinates size = structure.size();
     System.out.println("Blocks = " + (size.getX() * size.getY() * size.getZ()));
     BlockPalette palette = structure.structure().palette();
@@ -91,19 +121,31 @@ public class StructureConverter {
     for (int x = 0; x < size.getX(); x++) {
       for (int y = 0; y < size.getY(); y++) {
         for (int z = 0; z < size.getZ(); z++) {
-          functionBuilder.addCommands(
-            _setBlock(
-              x,
-              y,
-              z,
-              lbdm.convertBlockState(palette.get(indices.next()))
-            )
+          final int lx = x;
+          final int ly = y;
+          final int lz = z;
+          Pair<String, Integer> blockDef = lbdm.convertBlockState(
+            palette.get(indices.next())
+          );
+          // TODO: rotation doesn't take into account facing of blocks e.g. stairs
+          builders.forEach(
+            (rotation, functionBuilder) ->
+              functionBuilder.addCommands(
+                _setBlock(
+                  rotation.rotate(new Coordinates(lx, ly, lz)),
+                  blockDef
+                )
+              )
           );
         }
       }
     }
 
-    return functionBuilder.build();
+    return builders
+      .values()
+      .stream()
+      .map(x -> x.build())
+      .collect(Collectors.toList());
   }
 
   private static String _normalize(String name) {
@@ -115,9 +157,7 @@ public class StructureConverter {
   }
 
   private static String _setBlock(
-    int x,
-    int y,
-    int z,
+    Coordinates c,
     Pair<String, Integer> blockDef
   ) {
     String blockName = blockDef.getValue0();
@@ -127,9 +167,9 @@ public class StructureConverter {
     }
     return String.format(
       "setblock ~%d ~%d ~%d %s %d",
-      x,
-      y,
-      z,
+      c.x,
+      c.y,
+      c.z,
       blockName,
       blockDef.getValue1()
     );
