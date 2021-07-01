@@ -107,7 +107,7 @@ public class Nbt2Yaml {
   }
 
   private static YamlNode toYamlNode(byte[] t) {
-    return _scalar(null, "TODO byte[] of length " + t.length);
+    return _scalar("byte[]", Common.toHex(t));
   }
 
   private static YamlNode _scalar(String typeOverride, String value) {

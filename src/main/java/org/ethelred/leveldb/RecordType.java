@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 public enum RecordType {
   Unknown(-1),
   Data2D(45) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       try (
@@ -38,7 +37,6 @@ public enum RecordType {
   },
   Data2DLegacy(46),
   SubChunkPrefix(47) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) {
       SubChunkData subChunkData = SubChunkData.read(value);
@@ -47,7 +45,6 @@ public enum RecordType {
   },
   LegacyTerrain(48),
   BlockEntity(49) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       List<Object> tag = Common.readTagList(value);
@@ -55,7 +52,6 @@ public enum RecordType {
     }
   },
   Entity(50) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       List<Object> tag = Common.readTagList(value);
@@ -63,7 +59,6 @@ public enum RecordType {
     }
   },
   PendingTicks(51) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       List<Object> tag = Common.readTagList(value);
@@ -72,7 +67,6 @@ public enum RecordType {
   },
   BlockExtraData(52),
   BiomeState(53) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       // this is a guess based on what the data looked like
@@ -85,7 +79,6 @@ public enum RecordType {
     }
   },
   FinalizedState(54) {
-
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       into.setFinalizedState(Common.readIntLE(value));
@@ -95,7 +88,12 @@ public enum RecordType {
   RandomTicks(58),
   Checksums(59),
   Version(118) {
-
+    @Override
+    void readData(Key k, byte[] value, ChunkData into) throws IOException {
+      into.setVersion(value[0]);
+    }
+  },
+  Version44(44) {
     @Override
     void readData(Key k, byte[] value, ChunkData into) throws IOException {
       into.setVersion(value[0]);

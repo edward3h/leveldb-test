@@ -68,4 +68,20 @@ public class Common {
           System.out.printf("%12d => %s%n", count, toString.apply(thing))
       );
   }
+
+  public static String toHex(byte[] value) {
+    StringBuilder buf = new StringBuilder();
+    for (byte b : value) {
+      String hex = Integer.toHexString(b);
+      if (hex.length() < 2) {
+        buf.append("0");
+      }
+      buf.append(hex).append(" ");
+    }
+    return buf.toString();
+  }
+
+  public static Object indent(String indent, String input) {
+    return input.lines().map(l -> indent + l).collect(Collectors.joining("\n"));
+  }
 }

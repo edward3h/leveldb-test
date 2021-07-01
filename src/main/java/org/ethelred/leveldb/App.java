@@ -10,124 +10,145 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.IntStream;
-import org.ethelred.args4jboilerplate.Args4jBoilerplate;
 import org.ethelred.mc.StructureConverter;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.javatuples.KeyValue;
-import org.kohsuke.args4j.Option;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-public class App extends Args4jBoilerplate {
-  @Option(name = "--db", required = true)
+@Command(mixinStandardHelpOptions = true)
+public class App implements Runnable {
+
+  @Option(names = "--db", required = true)
   File db;
 
-  @Option(name = "--special", usage = "output special string keys and values")
+  @Option(
+    names = "--special",
+    description = "output special string keys and values"
+  )
   boolean dumpSpecial = false;
 
   @Option(
-    name = "--biomeIds",
-    usage = "dump biome IDs (trying to figure out what they mean)"
+    names = "--biomeIds",
+    description = "dump biome IDs (trying to figure out what they mean)"
   )
   boolean dumpBiomeIds = false;
 
-  @Option(name = "--blockNames", usage = "summary of block types")
+  @Option(names = "--blockNames", description = "summary of block types")
   boolean dumpBlockNames = false;
 
   @Option(
-    name = "--blockEntities",
-    usage = "dump block entities (trying to figure out what they mean)"
+    names = "--blockEntities",
+    description = "dump block entities (trying to figure out what they mean)"
   )
   boolean dumpBlockEntities = false;
 
   @Option(
-    name = "--entities",
-    usage = "dump entities (trying to figure out what they mean)"
+    names = "--entities",
+    description = "dump entities (trying to figure out what they mean)"
   )
   boolean dumpEntities = false;
 
   @Option(
-    name = "--elevations",
-    usage = "dump elevations (trying to figure out what they mean)"
+    names = "--elevations",
+    description = "dump elevations (trying to figure out what they mean)"
   )
   boolean dumpElevations = false;
 
-  @Option(name = "--grid", usage = "something")
+  @Option(names = "--grid", description = "something")
   boolean dumpGrid = false;
 
   @Option(
-    name = "--structure",
-    aliases = { "--structures" },
-    usage = "Dump structures"
+    names = { "--structure", "--structures" },
+    description = "Dump structures"
   )
   boolean dumpStructures = false;
 
-  public App(String[] args) {
-    super.parseArgs(args);
+  public static void main(String[] args) {
+    new CommandLine(new App()).execute(args);
   }
 
-  public static void main(String[] args) throws IOException {
-    new App(args).run();
-  }
-
-  private boolean run() throws IOException {
+  public void run() {
     Options options = new Options();
     options.createIfMissing(true);
-    DB ldb = factory.open(db, options);
     try {
-      Map<ChunkKey, ChunkData> chunks = new HashMap<>();
-      Map<String, Object> general = new HashMap<>();
-      Map<String, byte[]> generalRaw = new HashMap<>();
-      for (var e : ldb) {
-        Key k = new Key(e.getKey());
-        ChunkKey chunkKey = k.getChunkKey();
-        if (k.isSpecial()) {
-          general.put(k.getSpecialKey(), Common.readTag(e.getValue()));
-          generalRaw.put(k.getSpecialKey(), e.getValue());
-        } else if (chunkKey != null) {
-          ChunkData chunkData = chunks.computeIfAbsent(
-            k.getChunkKey(),
-            x -> new ChunkData()
-          );
-          k.getRecordType().readData(k, e.getValue(), chunkData);
+      DB ldb = factory.open(db, options);
+      try {
+        Map<ChunkKey, ChunkData> chunks = new HashMap<>();
+        Map<String, Object> general = new TreeMap<>();
+        Map<String, byte[]> generalRaw = new HashMap<>();
+        int skipped = 0;
+        for (var e : ldb) {
+          try {
+            Key k = new Key(e.getKey());
+            ChunkKey chunkKey = k.getChunkKey();
+            if (k.isSpecial()) {
+              general.put(k.getSpecialKey(), Common.readTag(e.getValue()));
+              generalRaw.put(k.getSpecialKey(), e.getValue());
+            } else if (chunkKey != null) {
+              ChunkData chunkData = chunks.computeIfAbsent(
+                k.getChunkKey(),
+                x -> new ChunkData()
+              );
+              k.getRecordType().readData(k, e.getValue(), chunkData);
+            }
+          } catch (Exception e2) {
+            System.err.println(
+              "Error entry: " +
+              Common.toHex(e.getKey()) +
+              " => " +
+              Common.toHex(e.getValue())
+            );
+            skipped++;
+          }
         }
-      }
+        System.err.println("Skipped " + skipped + " entries");
 
-      if (dumpSpecial) {
-        general.forEach(
-          (k, v) -> System.out.printf("%s => %s%n", k, Nbt2Yaml.toYamlString(v))
-        );
-      }
-      if (dumpBiomeIds) {
-        _dumpBiomeIds(chunks);
-      }
-      if (dumpBlockNames) {
-        _dumpBlockNames(chunks);
-      }
-      if (dumpBlockEntities) {
-        _dumpBlockEntities(chunks);
-      }
-      if (dumpEntities) {
-        _dumpEntities(chunks);
-      }
-      if (dumpElevations) {
-        _dumpElevations(chunks);
-      }
-      if (dumpGrid) {
-        _dumpGrid(chunks);
-      }
-      if (dumpStructures) {
-        _dumpStructures(generalRaw);
+        if (dumpSpecial) {
+          general.forEach(
+            (k, v) ->
+              System.out.printf(
+                "%s => %n%s%n",
+                k,
+                Common.indent("    ", Nbt2Yaml.toYamlString(v))
+              )
+          );
+        }
+        if (dumpBiomeIds) {
+          _dumpBiomeIds(chunks);
+        }
+        if (dumpBlockNames) {
+          _dumpBlockNames(chunks);
+        }
+        if (dumpBlockEntities) {
+          _dumpBlockEntities(chunks);
+        }
+        if (dumpEntities) {
+          _dumpEntities(chunks);
+        }
+        if (dumpElevations) {
+          _dumpElevations(chunks);
+        }
+        if (dumpGrid) {
+          _dumpGrid(chunks);
+        }
+        if (dumpStructures) {
+          _dumpStructures(generalRaw);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        // Make sure you close the db to shutdown the
+        // database and avoid resource leaks.
+        ldb.close();
       }
     } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      // Make sure you close the db to shutdown the
-      // database and avoid resource leaks.
-      ldb.close();
+      throw new RuntimeException(e);
     }
-
-    return true;
   }
 
   private void _dumpStructures(Map<String, byte[]> raw) throws IOException {
@@ -169,7 +190,7 @@ public class App extends Args4jBoilerplate {
       chunks
         .values()
         .stream()
-        .flatMap(chunk -> chunk.getBlocks().map(Block::toString))
+        .flatMap(chunk -> chunk.getBlocks().map(Block::getName))
     );
   }
 
