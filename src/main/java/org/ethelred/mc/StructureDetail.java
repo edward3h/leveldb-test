@@ -12,17 +12,18 @@ import org.immutables.value.Value;
 @JsonSerialize(as = ImmutableStructureDetail.class)
 @JsonIgnoreProperties(value = { "entities" })
 public interface StructureDetail {
-  List<List<Integer>> block_indices();
+    List<List<Integer>> block_indices();
 
-  @JsonProperty("palette")
-  NestedBlockPalette nestedPalette();
+    @JsonProperty("palette")
+    NestedBlockPalette nestedPalette();
 
-  default BlockPalette palette() {
-    return nestedPalette().defaultPalette;
-  }
+    default BlockPalette palette() {
+        return nestedPalette().defaultPalette;
+    }
 
-  static class NestedBlockPalette {
-    @JsonProperty("default")
-    private BlockPalette defaultPalette;
-  }
+    static class NestedBlockPalette {
+
+        @JsonProperty("default")
+        private BlockPalette defaultPalette;
+    }
 }

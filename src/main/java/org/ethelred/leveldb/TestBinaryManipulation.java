@@ -5,10 +5,10 @@ package org.ethelred.leveldb;
  */
 public class TestBinaryManipulation {
 
-  public static void main(String[] args) {
-    for (int i = 0; i < 16; i++) {
-      String oneBits = Integer.toBinaryString((2 << (i - 1)) - 1);
-      System.out.println(i + " => " + oneBits);
+    public static void main(String[] args) {
+        for (int i = 0; i < 16; i++) {
+            String oneBits = Integer.toBinaryString((2 << (i - 1)) - 1);
+            System.out.println(i + " => " + oneBits);
+        }
     }
-  }
 }

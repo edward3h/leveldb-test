@@ -7,92 +7,93 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class ChunkData {
-  private final SubChunkData[] subChunkData = new SubChunkData[16];
-  private int[] biomes;
-  private int[] elevations;
-  private List<Object> blockEntity = List.of();
-  private List<Object> pendingTicks = List.of();
-  private byte version;
-  private int finalizedState;
-  private List<Object> entities = List.of();
-  private Map<Byte, Byte> biomeStates = Map.of();
 
-  public void setSubChunkData(int subChunkIndex, SubChunkData data) {
-    subChunkData[subChunkIndex] = data;
-  }
+    private final SubChunkData[] subChunkData = new SubChunkData[16];
+    private int[] biomes;
+    private int[] elevations;
+    private List<Object> blockEntity = List.of();
+    private List<Object> pendingTicks = List.of();
+    private byte version;
+    private int finalizedState;
+    private List<Object> entities = List.of();
+    private Map<Byte, Byte> biomeStates = Map.of();
 
-  public void setElevations(int[] elevation) {
-    this.elevations = elevation;
-  }
+    public void setSubChunkData(int subChunkIndex, SubChunkData data) {
+        subChunkData[subChunkIndex] = data;
+    }
 
-  public void setBiomes(int[] biomes) {
-    this.biomes = biomes;
-  }
+    public void setElevations(int[] elevation) {
+        this.elevations = elevation;
+    }
 
-  public void setBlockEntity(List<Object> tag) {
-    this.blockEntity = tag;
-  }
+    public void setBiomes(int[] biomes) {
+        this.biomes = biomes;
+    }
 
-  public void setPendingTicks(List<Object> tag) {
-    this.pendingTicks = tag;
-  }
+    public void setBlockEntity(List<Object> tag) {
+        this.blockEntity = tag;
+    }
 
-  public void setVersion(byte b) {
-    this.version = b;
-  }
+    public void setPendingTicks(List<Object> tag) {
+        this.pendingTicks = tag;
+    }
 
-  public void setFinalizedState(int value) {
-    this.finalizedState = value;
-  }
+    public void setVersion(byte b) {
+        this.version = b;
+    }
 
-  public void setBiomeStates(Map<Byte, Byte> biomeStates) {
-    this.biomeStates = biomeStates;
-  }
+    public void setFinalizedState(int value) {
+        this.finalizedState = value;
+    }
 
-  public int[] getBiomes() {
-    return biomes;
-  }
+    public void setBiomeStates(Map<Byte, Byte> biomeStates) {
+        this.biomeStates = biomeStates;
+    }
 
-  public Map<Byte, Byte> getBiomeStates() {
-    return biomeStates;
-  }
+    public int[] getBiomes() {
+        return biomes;
+    }
 
-  public SubChunkData[] getSubChunkData() {
-    return subChunkData;
-  }
+    public Map<Byte, Byte> getBiomeStates() {
+        return biomeStates;
+    }
 
-  public int[] getElevations() {
-    return elevations;
-  }
+    public SubChunkData[] getSubChunkData() {
+        return subChunkData;
+    }
 
-  public List<Object> getBlockEntity() {
-    return blockEntity;
-  }
+    public int[] getElevations() {
+        return elevations;
+    }
 
-  public List<Object> getPendingTicks() {
-    return pendingTicks;
-  }
+    public List<Object> getBlockEntity() {
+        return blockEntity;
+    }
 
-  public byte getVersion() {
-    return version;
-  }
+    public List<Object> getPendingTicks() {
+        return pendingTicks;
+    }
 
-  public int getFinalizedState() {
-    return finalizedState;
-  }
+    public byte getVersion() {
+        return version;
+    }
 
-  public List<Object> getEntities() {
-    return entities;
-  }
+    public int getFinalizedState() {
+        return finalizedState;
+    }
 
-  public void setEntities(List<Object> entities) {
-    this.entities = entities;
-  }
+    public List<Object> getEntities() {
+        return entities;
+    }
 
-  public Stream<Block> getBlocks() {
-    return Stream
-      .of(subChunkData)
-      .filter(Objects::nonNull)
-      .flatMap(s -> StreamSupport.stream(s.spliterator(), false));
-  }
+    public void setEntities(List<Object> entities) {
+        this.entities = entities;
+    }
+
+    public Stream<Block> getBlocks() {
+        return Stream
+            .of(subChunkData)
+            .filter(Objects::nonNull)
+            .flatMap(s -> StreamSupport.stream(s.spliterator(), false));
+    }
 }
