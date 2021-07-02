@@ -8,8 +8,8 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableStructure.class)
 @JsonSerialize(as = ImmutableStructure.class)
 public interface Structure {
-  int format_version();
-  Coordinates size();
-  StructureDetail structure();
-  Coordinates structure_world_origin();
+    int format_version();
+    Coordinates size();
+    StructureDetail structure();
+    Coordinates structure_world_origin();
 }

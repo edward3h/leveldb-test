@@ -1,79 +1,90 @@
 
 plugins {
-    // Apply the java plugin to add support for Java
-    id 'java'
+	id 'java'
+	id 'application'
 
-    // Apply the application plugin to add support for building a CLI application.
-    id 'application'
+	id "com.diffplug.spotless" version "5.14.0"
+	id "com.github.jakemarsden.git-hooks" version "0.0.2"
 }
 
 repositories {
-    mavenCentral()
-    maven { url "https://jitpack.io" }
-    maven { url "https://repo.nukkitx.com/maven-releases" }
+	mavenCentral()
+	maven { url "https://jitpack.io" }
+	maven { url "https://repo.nukkitx.com/maven-releases" }
 }
 
 dependencies {
-    // This dependency is used by the application.
-    implementation 'com.google.guava:guava:28.2-jre'
+	// This dependency is used by the application.
+	implementation 'com.google.guava:guava:28.2-jre'
 
-    // Use TestNG framework, also requires calling test.useTestNG() below
-    testImplementation 'org.testng:testng:7.0.0'
+	// Use TestNG framework, also requires calling test.useTestNG() below
+	testImplementation 'org.testng:testng:7.0.0'
 
-    // https://mvnrepository.com/artifact/org.powernukkit.bedrock.leveldb/bedrock-leveldb
-    implementation group: 'org.powernukkit.bedrock.leveldb', name: 'bedrock-leveldb', version: '0.11.0-PN'
+	// https://mvnrepository.com/artifact/org.powernukkit.bedrock.leveldb/bedrock-leveldb
+	implementation group: 'org.powernukkit.bedrock.leveldb', name: 'bedrock-leveldb', version: '0.11.0-PN'
 
+	implementation 'info.picocli:picocli:4.6.1'
 
-    // implementation files('libs/leveldb/leveldb-api/target/leveldb-api-0.11.1-SNAPSHOT.jar')
-    // implementation files('libs/leveldb/leveldb/target/leveldb-0.11.1-SNAPSHOT.jar')
-    // TODO implementation 'com.github.NukkitX:leveldb:master-SNAPSHOT'
-    implementation 'info.picocli:picocli:4.6.1'
+	implementation 'com.github.edward3h:ethelred_util:v0.2'
+	implementation 'com.nukkitx:nbt:2.0.2'
 
-    implementation 'com.github.edward3h:ethelred_util:v0.2'
-    implementation 'com.nukkitx:nbt:2.0.2'
-
-    // https://mvnrepository.com/artifact/com.amihaiemil.web/eo-yaml
-    implementation group: 'com.amihaiemil.web', name: 'eo-yaml', version: '5.1.4'
+	// https://mvnrepository.com/artifact/com.amihaiemil.web/eo-yaml
+	implementation group: 'com.amihaiemil.web', name: 'eo-yaml', version: '5.1.4'
 
 
-    annotationProcessor 'org.immutables:value:2.8.2'
-    implementation 'org.immutables:value:2.8.2'
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.1'
+	annotationProcessor 'org.immutables:value:2.8.2'
+	implementation 'org.immutables:value:2.8.2'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.1'
 
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
 
-    // https://github.com/FasterXML/jackson-datatypes-collections
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version: '2.9.5'
+	// https://github.com/FasterXML/jackson-datatypes-collections
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version: '2.9.5'
 
-    //implementation 'com.github.CloudburstMC:jackson-dataformat-nbt:master-SNAPSHOT'
-    implementation 'com.github.edward3h:jackson-dataformat-nbt:untyped_support-SNAPSHOT'
+	//implementation 'com.github.CloudburstMC:jackson-dataformat-nbt:master-SNAPSHOT'
+	implementation 'com.github.edward3h:jackson-dataformat-nbt:untyped_support-SNAPSHOT'
 
-    // https://mvnrepository.com/artifact/org.javatuples/javatuples
-    implementation group: 'org.javatuples', name: 'javatuples', version: '1.2'
-
-
+	// https://mvnrepository.com/artifact/org.javatuples/javatuples
+	implementation group: 'org.javatuples', name: 'javatuples', version: '1.2'
 }
 
+spotless {
+	format 'misc', {
+		target '*.md', '.gitignore'
+		trimTrailingWhitespace()
+		indentWithSpaces()
+		endWithNewline()
+	}
+	java {
+		importOrder()
+		removeUnusedImports()
+		prettier(['prettier': '2.0.5', 'prettier-plugin-java': '0.8.0']).config(['parser': 'java', 'tabWidth': 4])
+	}
+	groovyGradle {
+		greclipse()
+	}
+}
+
+gitHooks {
+	hooks = ['pre-commit': 'spotlessApply build']
+}
+
+
 application {
-    // Define the main class for the application.
-    mainClassName = 'org.ethelred.leveldb.App'
+	// Define the main class for the application.
+	mainClassName = 'org.ethelred.leveldb.App'
 }
 
 test {
-    // Use TestNG for unit tests
-    useTestNG()
+	// Use TestNG for unit tests
+	useTestNG()
 }
 
 // this is a workaround to get vscode to see generated source
-sourceSets.main.java.srcDirs += 'build/generated/sources/annotationProcessor/java/main'
-
-task bootstrapDependencies(type:Exec) {
-    commandLine "script/bootstrap"
-}
-compileJava.dependsOn bootstrapDependencies
+// sourceSets.main.java.srcDirs += 'build/generated/sources/annotationProcessor/java/main'
 
 compileJava {
-    options.compilerArgs.add("-Aimmutables.gradle.incremental")
+	options.compilerArgs.add("-Aimmutables.gradle.incremental")
 }

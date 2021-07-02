@@ -10,58 +10,58 @@ import java.util.List;
 import java.util.Spliterator;
 
 public class BlockStorage implements Iterable<Block> {
-  private static final int BLOCKS_IN_SUBCHUNK = 4096;
-  List<Block> blocks;
+    private static final int BLOCKS_IN_SUBCHUNK = 4096;
+    List<Block> blocks;
 
-  public BlockStorage(LittleEndianDataInputStream in) throws IOException {
-    int storageVersion = in.readUnsignedByte();
-    int bitsPerBlock = storageVersion >>> 1;
-    int blocksPerWord = Integer.SIZE / bitsPerBlock;
-    int blockWordCount =
-      BLOCKS_IN_SUBCHUNK /
-      blocksPerWord +
-      (BLOCKS_IN_SUBCHUNK % blocksPerWord == 0 ? 0 : 1);
+    public BlockStorage(LittleEndianDataInputStream in) throws IOException {
+        int storageVersion = in.readUnsignedByte();
+        int bitsPerBlock = storageVersion >>> 1;
+        int blocksPerWord = Integer.SIZE / bitsPerBlock;
+        int blockWordCount =
+            BLOCKS_IN_SUBCHUNK /
+            blocksPerWord +
+            (BLOCKS_IN_SUBCHUNK % blocksPerWord == 0 ? 0 : 1);
 
-    int[] blockStates = new int[blockWordCount];
+        int[] blockStates = new int[blockWordCount];
 
-    for (int i = 0; i < blockStates.length; i++) {
-      blockStates[i] = in.readInt();
+        for (int i = 0; i < blockStates.length; i++) {
+            blockStates[i] = in.readInt();
+        }
+
+        int paletteSize = in.readInt();
+        NbtMap[] palette = new NbtMap[paletteSize];
+        try (NBTInputStream nbtIn = new NBTInputStream(in)) {
+            for (int i = 0; i < palette.length; i++) {
+                palette[i] = (NbtMap) nbtIn.readTag();
+            }
+        }
+        int bitMask = (2 << (bitsPerBlock - 1)) - 1;
+        blocks = new ArrayList<>(BLOCKS_IN_SUBCHUNK);
+        for (int blockState : blockStates) {
+            for (
+                int i = 0;
+                i < blocksPerWord && blocks.size() < BLOCKS_IN_SUBCHUNK;
+                i++
+            ) {
+                int blockIndex = blockState & bitMask;
+                blocks.add(new Block(palette[blockIndex]));
+                blockState = blockState >>> bitsPerBlock;
+            }
+        }
     }
 
-    int paletteSize = in.readInt();
-    NbtMap[] palette = new NbtMap[paletteSize];
-    try (NBTInputStream nbtIn = new NBTInputStream(in)) {
-      for (int i = 0; i < palette.length; i++) {
-        palette[i] = (NbtMap) nbtIn.readTag();
-      }
+    @Override
+    public String toString() {
+        return "BlockStorage []";
     }
-    int bitMask = (2 << (bitsPerBlock - 1)) - 1;
-    blocks = new ArrayList<>(BLOCKS_IN_SUBCHUNK);
-    for (int blockState : blockStates) {
-      for (
-        int i = 0;
-        i < blocksPerWord && blocks.size() < BLOCKS_IN_SUBCHUNK;
-        i++
-      ) {
-        int blockIndex = blockState & bitMask;
-        blocks.add(new Block(palette[blockIndex]));
-        blockState = blockState >>> bitsPerBlock;
-      }
+
+    @Override
+    public Iterator<Block> iterator() {
+        return blocks.iterator();
     }
-  }
 
-  @Override
-  public String toString() {
-    return "BlockStorage []";
-  }
-
-  @Override
-  public Iterator<Block> iterator() {
-    return blocks.iterator();
-  }
-
-  @Override
-  public Spliterator<Block> spliterator() {
-    return blocks.spliterator();
-  }
+    @Override
+    public Spliterator<Block> spliterator() {
+        return blocks.spliterator();
+    }
 }

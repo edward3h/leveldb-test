@@ -22,224 +22,233 @@ import picocli.CommandLine.Option;
 
 @Command(mixinStandardHelpOptions = true)
 public class App implements Runnable {
+    @Option(names = "--db", required = true)
+    File db;
 
-  @Option(names = "--db", required = true)
-  File db;
+    @Option(
+        names = "--special",
+        description = "output special string keys and values"
+    )
+    boolean dumpSpecial = false;
 
-  @Option(
-    names = "--special",
-    description = "output special string keys and values"
-  )
-  boolean dumpSpecial = false;
+    @Option(
+        names = "--biomeIds",
+        description = "dump biome IDs (trying to figure out what they mean)"
+    )
+    boolean dumpBiomeIds = false;
 
-  @Option(
-    names = "--biomeIds",
-    description = "dump biome IDs (trying to figure out what they mean)"
-  )
-  boolean dumpBiomeIds = false;
+    @Option(names = "--blockNames", description = "summary of block types")
+    boolean dumpBlockNames = false;
 
-  @Option(names = "--blockNames", description = "summary of block types")
-  boolean dumpBlockNames = false;
+    @Option(
+        names = "--blockEntities",
+        description = "dump block entities (trying to figure out what they mean)"
+    )
+    boolean dumpBlockEntities = false;
 
-  @Option(
-    names = "--blockEntities",
-    description = "dump block entities (trying to figure out what they mean)"
-  )
-  boolean dumpBlockEntities = false;
+    @Option(
+        names = "--entities",
+        description = "dump entities (trying to figure out what they mean)"
+    )
+    boolean dumpEntities = false;
 
-  @Option(
-    names = "--entities",
-    description = "dump entities (trying to figure out what they mean)"
-  )
-  boolean dumpEntities = false;
+    @Option(
+        names = "--elevations",
+        description = "dump elevations (trying to figure out what they mean)"
+    )
+    boolean dumpElevations = false;
 
-  @Option(
-    names = "--elevations",
-    description = "dump elevations (trying to figure out what they mean)"
-  )
-  boolean dumpElevations = false;
+    @Option(names = "--grid", description = "something")
+    boolean dumpGrid = false;
 
-  @Option(names = "--grid", description = "something")
-  boolean dumpGrid = false;
+    @Option(
+        names = { "--structure", "--structures" },
+        description = "Dump structures"
+    )
+    boolean dumpStructures = false;
 
-  @Option(
-    names = { "--structure", "--structures" },
-    description = "Dump structures"
-  )
-  boolean dumpStructures = false;
+    public static void main(String[] args) {
+        new CommandLine(new App()).execute(args);
+    }
 
-  public static void main(String[] args) {
-    new CommandLine(new App()).execute(args);
-  }
+    public void run() {
+        Options options = new Options();
+        options.createIfMissing(true);
+        try {
+            DB ldb = factory.open(db, options);
+            try {
+                Map<ChunkKey, ChunkData> chunks = new HashMap<>();
+                Map<String, Object> general = new TreeMap<>();
+                Map<String, byte[]> generalRaw = new HashMap<>();
+                int skipped = 0;
+                for (var e : ldb) {
+                    try {
+                        Key k = new Key(e.getKey());
+                        ChunkKey chunkKey = k.getChunkKey();
+                        if (k.isSpecial()) {
+                            general.put(
+                                k.getSpecialKey(),
+                                Common.readTag(e.getValue())
+                            );
+                            generalRaw.put(k.getSpecialKey(), e.getValue());
+                        } else if (chunkKey != null) {
+                            ChunkData chunkData = chunks.computeIfAbsent(
+                                k.getChunkKey(),
+                                x -> new ChunkData()
+                            );
+                            k
+                                .getRecordType()
+                                .readData(k, e.getValue(), chunkData);
+                        }
+                    } catch (Exception e2) {
+                        System.err.println(
+                            "Error entry: " +
+                            Common.toHex(e.getKey()) +
+                            " => " +
+                            Common.toHex(e.getValue())
+                        );
+                        skipped++;
+                    }
+                }
+                System.err.println("Skipped " + skipped + " entries");
 
-  public void run() {
-    Options options = new Options();
-    options.createIfMissing(true);
-    try {
-      DB ldb = factory.open(db, options);
-      try {
-        Map<ChunkKey, ChunkData> chunks = new HashMap<>();
-        Map<String, Object> general = new TreeMap<>();
-        Map<String, byte[]> generalRaw = new HashMap<>();
-        int skipped = 0;
-        for (var e : ldb) {
-          try {
-            Key k = new Key(e.getKey());
-            ChunkKey chunkKey = k.getChunkKey();
-            if (k.isSpecial()) {
-              general.put(k.getSpecialKey(), Common.readTag(e.getValue()));
-              generalRaw.put(k.getSpecialKey(), e.getValue());
-            } else if (chunkKey != null) {
-              ChunkData chunkData = chunks.computeIfAbsent(
-                k.getChunkKey(),
-                x -> new ChunkData()
-              );
-              k.getRecordType().readData(k, e.getValue(), chunkData);
+                if (dumpSpecial) {
+                    general.forEach(
+                        (k, v) ->
+                            System.out.printf(
+                                "%s => %n%s%n",
+                                k,
+                                Common.indent("    ", Nbt2Yaml.toYamlString(v))
+                            )
+                    );
+                }
+                if (dumpBiomeIds) {
+                    _dumpBiomeIds(chunks);
+                }
+                if (dumpBlockNames) {
+                    _dumpBlockNames(chunks);
+                }
+                if (dumpBlockEntities) {
+                    _dumpBlockEntities(chunks);
+                }
+                if (dumpEntities) {
+                    _dumpEntities(chunks);
+                }
+                if (dumpElevations) {
+                    _dumpElevations(chunks);
+                }
+                if (dumpGrid) {
+                    _dumpGrid(chunks);
+                }
+                if (dumpStructures) {
+                    _dumpStructures(generalRaw);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                // Make sure you close the db to shutdown the
+                // database and avoid resource leaks.
+                ldb.close();
             }
-          } catch (Exception e2) {
-            System.err.println(
-              "Error entry: " +
-              Common.toHex(e.getKey()) +
-              " => " +
-              Common.toHex(e.getValue())
-            );
-            skipped++;
-          }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        System.err.println("Skipped " + skipped + " entries");
-
-        if (dumpSpecial) {
-          general.forEach(
-            (k, v) ->
-              System.out.printf(
-                "%s => %n%s%n",
-                k,
-                Common.indent("    ", Nbt2Yaml.toYamlString(v))
-              )
-          );
-        }
-        if (dumpBiomeIds) {
-          _dumpBiomeIds(chunks);
-        }
-        if (dumpBlockNames) {
-          _dumpBlockNames(chunks);
-        }
-        if (dumpBlockEntities) {
-          _dumpBlockEntities(chunks);
-        }
-        if (dumpEntities) {
-          _dumpEntities(chunks);
-        }
-        if (dumpElevations) {
-          _dumpElevations(chunks);
-        }
-        if (dumpGrid) {
-          _dumpGrid(chunks);
-        }
-        if (dumpStructures) {
-          _dumpStructures(generalRaw);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        // Make sure you close the db to shutdown the
-        // database and avoid resource leaks.
-        ldb.close();
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
-  }
 
-  private void _dumpStructures(Map<String, byte[]> raw) throws IOException {
-    StructureConverter.convert(
-      raw
-        .entrySet()
-        .stream()
-        .filter(e -> e.getKey().startsWith("structure"))
-        .map(e -> KeyValue.with(e.getKey(), e.getValue()))
-    );
-  }
-
-  private void _dumpGrid(Map<ChunkKey, ChunkData> chunks) {
-    IntSummaryStatistics xStats = chunks
-      .keySet()
-      .stream()
-      .mapToInt(k -> k.getX())
-      .summaryStatistics();
-    IntSummaryStatistics zStats = chunks
-      .keySet()
-      .stream()
-      .mapToInt(k -> k.getZ())
-      .summaryStatistics();
-    for (int z = zStats.getMin(); z <= zStats.getMax(); z++) {
-      for (int x = xStats.getMin(); x <= xStats.getMax(); x++) {
-        String rep = " ";
-        ChunkData chunk = chunks.get(new ChunkKey(x, z));
-        if (chunk != null) {
-          rep = "O";
-        }
-        System.out.print(rep);
-      }
-      System.out.println();
+    private void _dumpStructures(Map<String, byte[]> raw) throws IOException {
+        StructureConverter.convert(
+            raw
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith("structure"))
+                .map(e -> KeyValue.with(e.getKey(), e.getValue()))
+        );
     }
-  }
 
-  private void _dumpBlockNames(Map<ChunkKey, ChunkData> chunks) {
-    Common.dumpThingByCount(
-      chunks
-        .values()
-        .stream()
-        .flatMap(chunk -> chunk.getBlocks().map(Block::getName))
-    );
-  }
+    private void _dumpGrid(Map<ChunkKey, ChunkData> chunks) {
+        IntSummaryStatistics xStats = chunks
+            .keySet()
+            .stream()
+            .mapToInt(k -> k.getX())
+            .summaryStatistics();
+        IntSummaryStatistics zStats = chunks
+            .keySet()
+            .stream()
+            .mapToInt(k -> k.getZ())
+            .summaryStatistics();
+        for (int z = zStats.getMin(); z <= zStats.getMax(); z++) {
+            for (int x = xStats.getMin(); x <= xStats.getMax(); x++) {
+                String rep = " ";
+                ChunkData chunk = chunks.get(new ChunkKey(x, z));
+                if (chunk != null) {
+                    rep = "O";
+                }
+                System.out.print(rep);
+            }
+            System.out.println();
+        }
+    }
 
-  private void _dumpBlockEntities(Map<ChunkKey, ChunkData> chunks) {
-    Common.dumpThingByCount(
-      chunks
-        .values()
-        .stream()
-        .flatMap(chunk -> chunk.getBlockEntity().stream()),
-      Nbt2Yaml::toYamlString
-    );
-  }
+    private void _dumpBlockNames(Map<ChunkKey, ChunkData> chunks) {
+        Common.dumpThingByCount(
+            chunks
+                .values()
+                .stream()
+                .flatMap(chunk -> chunk.getBlocks().map(Block::getName))
+        );
+    }
 
-  private void _dumpEntities(Map<ChunkKey, ChunkData> chunks) {
-    Common.dumpThingByCount(
-      chunks.values().stream().flatMap(chunk -> chunk.getEntities().stream()),
-      Nbt2Yaml::toYamlString
-    );
-  }
+    private void _dumpBlockEntities(Map<ChunkKey, ChunkData> chunks) {
+        Common.dumpThingByCount(
+            chunks
+                .values()
+                .stream()
+                .flatMap(chunk -> chunk.getBlockEntity().stream()),
+            Nbt2Yaml::toYamlString
+        );
+    }
 
-  private void _dumpBiomeIds(Map<ChunkKey, ChunkData> chunks) {
-    Common.dumpThingByCount(
-      chunks
-        .values()
-        .stream()
-        .flatMap(chunk -> IntStream.of(chunk.getBiomes()).mapToObj(x -> x))
-    );
-    System.out.println();
-    Common.dumpThingByCount(
-      chunks
-        .values()
-        .stream()
-        .flatMap(chunk -> chunk.getBiomeStates().keySet().stream())
-    );
-  }
+    private void _dumpEntities(Map<ChunkKey, ChunkData> chunks) {
+        Common.dumpThingByCount(
+            chunks
+                .values()
+                .stream()
+                .flatMap(chunk -> chunk.getEntities().stream()),
+            Nbt2Yaml::toYamlString
+        );
+    }
 
-  private void _dumpElevations(Map<ChunkKey, ChunkData> chunks) {
-    Common.dumpThingByCount(
-      chunks
-        .values()
-        .stream()
-        .flatMap(
-          chunk ->
-            IntStream
-              .of(chunk.getElevations())
-              .average()
-              .stream()
-              .mapToObj(x -> Math.round(x))
-        )
-    );
-  }
+    private void _dumpBiomeIds(Map<ChunkKey, ChunkData> chunks) {
+        Common.dumpThingByCount(
+            chunks
+                .values()
+                .stream()
+                .flatMap(
+                    chunk -> IntStream.of(chunk.getBiomes()).mapToObj(x -> x)
+                )
+        );
+        System.out.println();
+        Common.dumpThingByCount(
+            chunks
+                .values()
+                .stream()
+                .flatMap(chunk -> chunk.getBiomeStates().keySet().stream())
+        );
+    }
+
+    private void _dumpElevations(Map<ChunkKey, ChunkData> chunks) {
+        Common.dumpThingByCount(
+            chunks
+                .values()
+                .stream()
+                .flatMap(
+                    chunk ->
+                        IntStream
+                            .of(chunk.getElevations())
+                            .average()
+                            .stream()
+                            .mapToObj(x -> Math.round(x))
+                )
+        );
+    }
 }

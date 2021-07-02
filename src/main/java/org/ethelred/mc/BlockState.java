@@ -9,7 +9,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableBlockState.class)
 @JsonSerialize(as = ImmutableBlockState.class)
 public interface BlockState {
-  String name();
-  Map<String, Object> states();
-  int version();
+    String name();
+    Map<String, Object> states();
+    int version();
 }

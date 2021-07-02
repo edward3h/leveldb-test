@@ -12,10 +12,10 @@ import org.immutables.value.Value;
 @JsonSerialize(as = ImmutableBlockPalette.class)
 @JsonIgnoreProperties({ "block_position_data" }) // can't set these with setblock so ignore for now
 public interface BlockPalette {
-  @JsonProperty("block_palette")
-  List<BlockState> blockStates();
+    @JsonProperty("block_palette")
+    List<BlockState> blockStates();
 
-  default BlockState get(int index) {
-    return blockStates().get(index);
-  }
+    default BlockState get(int index) {
+        return blockStates().get(index);
+    }
 }

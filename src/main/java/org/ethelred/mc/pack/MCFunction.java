@@ -9,17 +9,17 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface MCFunction extends MCPackFile {
-  String name();
-  List<String> commands();
+    String name();
+    List<String> commands();
 
-  @Override
-  default String getRelativePath() {
-    return "functions/" + name() + ".mcfunction";
-  }
+    @Override
+    default String getRelativePath() {
+        return "functions/" + name() + ".mcfunction";
+    }
 
-  @Override
-  default void writeTo(OutputStream out) throws IOException {
-    PrintStream p = new PrintStream(out, false, StandardCharsets.UTF_8);
-    commands().forEach(p::println);
-  }
+    @Override
+    default void writeTo(OutputStream out) throws IOException {
+        PrintStream p = new PrintStream(out, false, StandardCharsets.UTF_8);
+        commands().forEach(p::println);
+    }
 }
