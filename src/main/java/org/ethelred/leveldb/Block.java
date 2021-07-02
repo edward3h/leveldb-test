@@ -4,6 +4,7 @@ import com.nukkitx.nbt.NbtMap;
 import java.util.Map;
 
 public class Block {
+
     private final NbtMap tag;
 
     public Block(NbtMap tag) {

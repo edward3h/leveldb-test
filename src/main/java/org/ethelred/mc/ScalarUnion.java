@@ -7,6 +7,7 @@ import java.util.function.Function;
  * simplified type system for certain values.
  */
 public class ScalarUnion {
+
     private static final Map<Class, Function> CONVERSIONS = Map.of(
         Byte.class,
         ScalarUnion::_int,

@@ -7,6 +7,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 public class Key {
+
     private Integer x;
     private Integer z;
 

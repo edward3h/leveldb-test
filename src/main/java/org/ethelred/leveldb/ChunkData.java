@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class ChunkData {
+
     private final SubChunkData[] subChunkData = new SubChunkData[16];
     private int[] biomes;
     private int[] elevations;

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.javatuples.Pair;
 
 public class LegacyBlockDataMap {
+
     private static final String RESOURCE_NAME =
         "/data/legacy_block_data_map.json";
 

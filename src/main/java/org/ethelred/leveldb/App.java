@@ -22,6 +22,7 @@ import picocli.CommandLine.Option;
 
 @Command(mixinStandardHelpOptions = true)
 public class App implements Runnable {
+
     @Option(names = "--db", required = true)
     File db;
 

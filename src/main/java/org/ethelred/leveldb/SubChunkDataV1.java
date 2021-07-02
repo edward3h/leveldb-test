@@ -11,6 +11,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 
 public class SubChunkDataV1 implements SubChunkData {
+
     private byte version;
     private byte storageCount;
     private List<BlockStorage> blockStorage = new ArrayList<>();

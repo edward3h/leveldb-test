@@ -25,6 +25,7 @@ import java.util.zip.ZipOutputStream;
 import org.ethelred.util.function.CheckedConsumer;
 
 public class MCPackWriter {
+
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
         .enable(SerializationFeature.INDENT_OUTPUT)
         .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
@@ -110,6 +111,7 @@ public class MCPackWriter {
     }
 
     private static class Manifest extends JsonSerializable.Base {
+
         private MCPack pack;
 
         public Manifest(MCPack pack) {
@@ -120,8 +122,7 @@ public class MCPackWriter {
         public void serialize(
             JsonGenerator gen,
             SerializerProvider serializers
-        )
-            throws IOException {
+        ) throws IOException {
             gen.writeStartObject();
             gen.writeNumberField("format_version", 2);
 
@@ -164,13 +165,13 @@ public class MCPackWriter {
             JsonGenerator gen,
             SerializerProvider serializers,
             TypeSerializer typeSer
-        )
-            throws IOException {
+        ) throws IOException {
             serialize(gen, serializers);
         }
     }
 
     private static class MCPackDirectory implements MCPackFile {
+
         private String path;
 
         public MCPackDirectory(String path) {

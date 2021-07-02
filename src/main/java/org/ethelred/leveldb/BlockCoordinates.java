@@ -1,6 +1,7 @@
 package org.ethelred.leveldb;
 
 public class BlockCoordinates {
+
     private final int x;
     private final int y;
     private final int z;

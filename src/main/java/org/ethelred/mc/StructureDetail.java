@@ -22,6 +22,7 @@ public interface StructureDetail {
     }
 
     static class NestedBlockPalette {
+
         @JsonProperty("default")
         private BlockPalette defaultPalette;
     }

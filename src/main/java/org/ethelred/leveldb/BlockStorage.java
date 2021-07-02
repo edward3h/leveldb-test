@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Spliterator;
 
 public class BlockStorage implements Iterable<Block> {
+
     private static final int BLOCKS_IN_SUBCHUNK = 4096;
     List<Block> blocks;
 

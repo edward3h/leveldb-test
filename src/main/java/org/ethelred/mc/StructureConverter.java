@@ -25,6 +25,7 @@ import org.javatuples.KeyValue;
 import org.javatuples.Pair;
 
 public class StructureConverter {
+
     private static final ObjectMapper mapper = new NBTMapper()
         .enable(Feature.LITTLE_ENDIAN)
         .registerModule(new GuavaModule());

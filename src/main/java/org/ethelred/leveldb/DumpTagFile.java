@@ -40,8 +40,7 @@ public class DumpTagFile {
     static boolean tryRead(
         ThrowingFunction<InputStream, NBTInputStream> nbtAccessor,
         InputStream delegate
-    )
-        throws IOException {
+    ) throws IOException {
         NBTInputStream in = nbtAccessor.apply(delegate);
         System.out.println(Nbt2Yaml.toYamlString(in.readTag()));
         return true;
