@@ -74,7 +74,8 @@ gitHooks {
 
 application {
 	// Define the main class for the application.
-	mainClassName = 'org.ethelred.leveldb.App'
+//	mainClassName = 'org.ethelred.leveldb.App'
+mainClassName = 'org.ethelred.leveldb.DumpTagFile'
 }
 
 test {
