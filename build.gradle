@@ -29,7 +29,7 @@ dependencies {
 	implementation 'com.nukkitx:nbt:2.0.2'
 
 	// https://mvnrepository.com/artifact/com.amihaiemil.web/eo-yaml
-	implementation group: 'com.amihaiemil.web', name: 'eo-yaml', version: '5.1.4'
+	implementation group: 'com.amihaiemil.web', name: 'eo-yaml', version: '5.2.3'
 
 
 	annotationProcessor 'org.immutables:value:2.8.2'
