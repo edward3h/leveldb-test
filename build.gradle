@@ -23,7 +23,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.powernukkit.bedrock.leveldb/bedrock-leveldb
 	implementation group: 'org.powernukkit.bedrock.leveldb', name: 'bedrock-leveldb', version: '0.11.0-PN'
 
-	implementation 'info.picocli:picocli:4.6.1'
+	implementation 'info.picocli:picocli:4.7.5'
 
 	implementation 'com.github.edward3h:ethelred_util:v0.2'
 	implementation 'com.nukkitx:nbt:2.0.2'
