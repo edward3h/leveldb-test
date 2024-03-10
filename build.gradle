@@ -35,7 +35,7 @@ dependencies {
 	annotationProcessor 'org.immutables:value:2.8.2'
 	implementation 'org.immutables:value:2.8.2'
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.1'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.16.2'
 
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
