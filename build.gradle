@@ -38,7 +38,7 @@ dependencies {
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.1'
 
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
 
 	// https://github.com/FasterXML/jackson-datatypes-collections
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version: '2.9.5'
