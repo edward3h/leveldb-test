@@ -35,13 +35,13 @@ dependencies {
 	annotationProcessor 'org.immutables:value:2.8.2'
 	implementation 'org.immutables:value:2.8.2'
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.1'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.21.3'
 
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.21.3'
 
 	// https://github.com/FasterXML/jackson-datatypes-collections
-	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version: '2.9.5'
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version: '2.21.3'
 
 	//implementation 'com.github.CloudburstMC:jackson-dataformat-nbt:master-SNAPSHOT'
 	implementation 'com.github.edward3h:jackson-dataformat-nbt:untyped_support-SNAPSHOT'
